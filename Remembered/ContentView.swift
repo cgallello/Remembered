@@ -10,7 +10,7 @@ struct ContentView: View {
     @State private var showingPaywall = false
     @State private var preFillText: String = ""
     @State private var keyboardHeight: CGFloat = 0
-    @FocusState private var inputFocused: Bool
+    @State private var triggerFocus = false
 
     var body: some View {
         NavigationStack {
@@ -20,11 +20,19 @@ struct ContentView: View {
                     EmptyStateView(
                         onExampleTapped: { example in
                             preFillText = example
-                            inputFocused = true
+                            triggerFocus = true
+                            // Reset for next time
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                triggerFocus = false
+                            }
                         },
                         onAddTapped: {
                             preFillText = ""
-                            inputFocused = true
+                            triggerFocus = true
+                            // Reset for next time
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                triggerFocus = false
+                            }
                         }
                     )
                 } else {
@@ -72,7 +80,7 @@ struct ContentView: View {
                 }
 
                 // Input bar - always at bottom of VStack
-                PersistentInputBar(preFillText: $preFillText, shouldFocus: inputFocused)
+                PersistentInputBar(preFillText: $preFillText, shouldFocus: triggerFocus)
             }
             .navigationTitle("Dates")
             .toolbar {
@@ -90,7 +98,14 @@ struct ContentView: View {
             }
             .onOpenURL { url in
                 if url.host == "capture" {
-                    inputFocused = true
+                    // Toggle to trigger onChange in PersistentInputBar
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        triggerFocus = true
+                        // Reset after a moment so it can be triggered again
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            triggerFocus = false
+                        }
+                    }
                 } else if url.host == "paywall" {
                     showingPaywall = true
                 }
