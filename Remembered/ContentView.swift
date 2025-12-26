@@ -84,7 +84,7 @@ struct ContentView: View {
             }
             .navigationTitle("Dates")
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button(action: { showingSettingsSheet = true }) {
                         Label("Settings", systemImage: "gear")
                     }
