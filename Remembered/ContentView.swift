@@ -83,20 +83,16 @@ struct ContentView: View {
                 PersistentInputBar(preFillText: $preFillText, shouldFocus: inputFocused)
             }
             .padding(.bottom, keyboardHeight)
-            .onAppear {
-                NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { notification in
-                    if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
-                        let safeAreaBottom = geometry.safeAreaInsets.bottom
-                        withAnimation(.easeOut(duration: 0.3)) {
-                            keyboardHeight = keyboardFrame.height - safeAreaBottom
-                        }
+            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
+                if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
+                    withAnimation(.easeOut(duration: 0.3)) {
+                        keyboardHeight = keyboardFrame.height
                     }
                 }
-
-                NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { _ in
-                    withAnimation(.easeOut(duration: 0.3)) {
-                        keyboardHeight = 0
-                    }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+                withAnimation(.easeOut(duration: 0.3)) {
+                    keyboardHeight = 0
                 }
             }
             .sheet(isPresented: $showingSettingsSheet) {
