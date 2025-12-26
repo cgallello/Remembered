@@ -27,6 +27,7 @@ struct ContentView: View {
                             inputFocused = true
                         }
                     )
+                    .padding(.bottom, keyboardHeight)
                 } else {
                     List {
                     ForEach(items) { item in
