@@ -28,7 +28,7 @@ struct RememberedApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            OnboardingGateView()
                 .environmentObject(storeManager)
         }
         .modelContainer(sharedModelContainer)
