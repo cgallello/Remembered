@@ -6,10 +6,10 @@ struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \RememberedItem.date) private var items: [RememberedItem]
     
-    @State private var showingCaptureSheet = false
     @State private var showingSettingsSheet = false
     @State private var showingPaywall = false
     @State private var preFillText: String = ""
+    @FocusState private var inputFocused: Bool
 
     var body: some View {
         NavigationStack {
@@ -18,11 +18,11 @@ struct ContentView: View {
                     EmptyStateView(
                         onExampleTapped: { example in
                             preFillText = example
-                            showingCaptureSheet = true
+                            inputFocused = true
                         },
                         onAddTapped: {
                             preFillText = ""
-                            showingCaptureSheet = true
+                            inputFocused = true
                         }
                     )
                 } else {
@@ -76,20 +76,9 @@ struct ContentView: View {
                         Label("Settings", systemImage: "gear")
                     }
                 }
-                
-                ToolbarItem(placement: .primaryAction) {
-                    Button(action: { showingCaptureSheet = true }) {
-                        Label("Add", systemImage: "plus")
-                    }
-                }
             }
-            .sheet(isPresented: $showingCaptureSheet) {
-                CaptureView(initialText: preFillText)
-                    .presentationDetents([.fraction(0.35), .medium])
-                    .presentationDragIndicator(.visible)
-                    .onDisappear {
-                        preFillText = ""
-                    }
+            .safeAreaInset(edge: .bottom) {
+                PersistentInputBar(preFillText: $preFillText, shouldFocus: inputFocused)
             }
             .sheet(isPresented: $showingSettingsSheet) {
                 SettingsView()
@@ -99,7 +88,7 @@ struct ContentView: View {
             }
             .onOpenURL { url in
                 if url.host == "capture" {
-                    showingCaptureSheet = true
+                    inputFocused = true
                 } else if url.host == "paywall" {
                     showingPaywall = true
                 }
