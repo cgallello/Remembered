@@ -81,12 +81,12 @@ struct ContentView: View {
             }
             .safeAreaInset(edge: .bottom) {
                 PersistentInputBar(preFillText: $preFillText, shouldFocus: inputFocused)
+                    .offset(y: -keyboardHeight)
             }
-            .padding(.bottom, keyboardHeight)
             .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
                 if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
                     withAnimation(.easeOut(duration: 0.3)) {
-                        keyboardHeight = keyboardFrame.height
+                        keyboardHeight = keyboardFrame.height - geometry.safeAreaInsets.bottom
                     }
                 }
             }
