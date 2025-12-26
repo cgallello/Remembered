@@ -4,13 +4,14 @@ import SwiftData
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Query private var items: [RememberedItem]
-    
+
     @AppStorage("notificationHour") private var notificationHour: Int = 9
     @AppStorage("notificationMinute") private var notificationMinute: Int = 0
     @AppStorage("showDebugFeatures") private var showDebugFeatures: Bool = false
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = true
-    
+
     @StateObject private var storeManager = StoreManager.shared
+    @State private var showingOnboarding = false
     
     var body: some View {
         NavigationStack {
@@ -46,9 +47,8 @@ struct SettingsView: View {
                     Toggle("Debug: Show Reference Section", isOn: $showDebugFeatures)
                         .tint(.purple)
 
-                    Button("Reset Onboarding") {
-                        hasCompletedOnboarding = false
-                        dismiss()
+                    Button("Open onboarding") {
+                        showingOnboarding = true
                     }
                     .foregroundStyle(.purple)
                 } header: {
@@ -65,6 +65,9 @@ struct SettingsView: View {
                     }
                 }
             }
+        }
+        .fullScreenCover(isPresented: $showingOnboarding) {
+            OnboardingContainerView()
         }
     }
 }

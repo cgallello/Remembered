@@ -11,54 +11,57 @@ struct EmptyStateView: View {
     ]
 
     var body: some View {
-        VStack(spacing: 24) {
-            Spacer()
+        ScrollView {
+            VStack(spacing: 24) {
+                Spacer(minLength: 60)
 
-            // SF Symbol illustration (birthday cake)
-            Image(systemName: "birthday.cake.fill")
-                .font(.system(size: 64))
-                .foregroundStyle(.secondary)
+                // SF Symbol illustration (birthday cake)
+                Image(systemName: "birthday.cake.fill")
+                    .font(.system(size: 64))
+                    .foregroundStyle(.secondary)
 
-            // Headline
-            Text("Your important dates live here")
-                .font(.title2)
-                .fontWeight(.semibold)
+                // Headline
+                Text("Your important dates live here")
+                    .font(.title2)
+                    .fontWeight(.semibold)
 
-            // Subhead
-            Text("Add birthdays, anniversaries, and dates\nyou never want to forget.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
+                // Subhead
+                Text("Add birthdays, anniversaries, and dates\nyou never want to forget.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
 
-            // Primary CTA
-            Button("Add your first date") {
-                onAddTapped()
-            }
-            .buttonStyle(.borderedProminent)
-            .padding(.top, 8)
+                // Primary CTA
+                Button("Add your first date") {
+                    onAddTapped()
+                }
+                .buttonStyle(.borderedProminent)
+                .padding(.top, 8)
 
-            // Divider with "or try an example"
-            Text("or try an example")
-                .font(.caption)
-                .foregroundStyle(.tertiary)
-                .padding(.top, 16)
+                // Divider with "or try an example"
+                Text("or try an example")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+                    .padding(.top, 16)
 
-            // Tappable example phrases
-            VStack(spacing: 12) {
-                ForEach(examples, id: \.self) { example in
-                    Button {
-                        onExampleTapped(example)
-                    } label: {
-                        Text("\"\(example)\"")
-                            .font(.subheadline)
-                            .foregroundStyle(.blue)
+                // Tappable example phrases
+                VStack(spacing: 12) {
+                    ForEach(examples, id: \.self) { example in
+                        Button {
+                            onExampleTapped(example)
+                        } label: {
+                            Text("\"\(example)\"")
+                                .font(.subheadline)
+                                .foregroundStyle(.blue)
+                        }
                     }
                 }
-            }
 
-            Spacer()
+                Spacer(minLength: 20)
+            }
+            .padding()
+            .frame(maxWidth: .infinity)
         }
-        .padding()
     }
 }
 

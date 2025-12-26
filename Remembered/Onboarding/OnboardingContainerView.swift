@@ -3,6 +3,7 @@ import SwiftUI
 struct OnboardingContainerView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var currentScreen = 0
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         ZStack {
@@ -68,10 +69,11 @@ struct OnboardingContainerView: View {
         // Track completion
         AnalyticsManager.track("onboarding_completed")
 
-        // Mark as complete with animation
-        withAnimation(.easeInOut(duration: 0.3)) {
-            hasCompletedOnboarding = true
-        }
+        // Mark as complete
+        hasCompletedOnboarding = true
+
+        // Dismiss if presented as modal (safe to call even if not modal)
+        dismiss()
     }
 }
 

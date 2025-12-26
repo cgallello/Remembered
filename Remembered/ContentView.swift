@@ -9,13 +9,13 @@ struct ContentView: View {
     @State private var showingSettingsSheet = false
     @State private var showingPaywall = false
     @State private var preFillText: String = ""
-    @FocusState private var inputFocused: Bool
     @State private var keyboardHeight: CGFloat = 0
+    @FocusState private var inputFocused: Bool
 
     var body: some View {
-        GeometryReader { geometry in
         NavigationStack {
             VStack(spacing: 0) {
+                // Main content
                 if items.isEmpty {
                     EmptyStateView(
                         onExampleTapped: { example in
@@ -29,70 +29,57 @@ struct ContentView: View {
                     )
                 } else {
                     List {
-                    ForEach(items) { item in
-                    NavigationLink(destination: DetailView(item: item)) {
-                        HStack(spacing: 12) {
-                            Text(icon(for: item.type))
-                                .font(.title2)
-                                .frame(width: 32)
-                            
-                            VStack(alignment: .leading) {
-                                Text(item.title)
-                                    .font(.headline)
-                            }
-                            
-                            Spacer()
-                            
-                            VStack(alignment: .trailing) {
-                                if let date = item.date {
-                                    Text(date.formatted(.dateTime.month().day()))
-                                        .font(.caption)
-                                        .fontWeight(.semibold)
-                                        .foregroundStyle(.secondary)
+                        ForEach(items) { item in
+                            NavigationLink(destination: DetailView(item: item)) {
+                                HStack(spacing: 12) {
+                                    Text(icon(for: item.type))
+                                        .font(.title2)
+                                        .frame(width: 32)
+
+                                    VStack(alignment: .leading) {
+                                        Text(item.title)
+                                            .font(.headline)
+                                    }
+
+                                    Spacer()
+
+                                    VStack(alignment: .trailing) {
+                                        if let date = item.date {
+                                            Text(date.formatted(.dateTime.month().day()))
+                                                .font(.caption)
+                                                .fontWeight(.semibold)
+                                                .foregroundStyle(.secondary)
+                                        }
+
+                                        if let days = item.daysUntil, days <= 60 {
+                                            Text(item.countdownString)
+                                                .font(.caption2)
+                                                .foregroundStyle(.secondary)
+                                        }
+
+                                        if item.needsReview {
+                                            Image(systemName: "exclamationmark.triangle.fill")
+                                                .font(.caption2)
+                                                .foregroundColor(.orange)
+                                        }
+                                    }
                                 }
-                                
-                                if let days = item.daysUntil, days <= 60 {
-                                    Text(item.countdownString)
-                                        .font(.caption2)
-                                        .foregroundStyle(.secondary)
-                                }
-                                
-                                if item.needsReview {
-                                    Image(systemName: "exclamationmark.triangle.fill")
-                                        .font(.caption2)
-                                        .foregroundColor(.orange)
-                                }
+                                .padding(.vertical, 4)
                             }
                         }
-                        .padding(.vertical, 4)
-                    }
-                    }
-                    .onDelete(perform: deleteItems)
+                        .onDelete(perform: deleteItems)
                     }
                 }
 
+                // Input bar - always at bottom of VStack
                 PersistentInputBar(preFillText: $preFillText, shouldFocus: inputFocused)
             }
-            .padding(.bottom, keyboardHeight)
-            .ignoresSafeArea(.keyboard)
             .navigationTitle("Dates")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(action: { showingSettingsSheet = true }) {
                         Label("Settings", systemImage: "gear")
                     }
-                }
-            }
-            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
-                if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
-                    withAnimation(.easeOut(duration: 0.3)) {
-                        keyboardHeight = keyboardFrame.height - geometry.safeAreaInsets.bottom
-                    }
-                }
-            }
-            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
-                withAnimation(.easeOut(duration: 0.3)) {
-                    keyboardHeight = 0
                 }
             }
             .sheet(isPresented: $showingSettingsSheet) {
@@ -109,7 +96,6 @@ struct ContentView: View {
                 }
             }
         }
-        }
     }
 
     private func deleteItems(offsets: IndexSet) {
@@ -121,7 +107,7 @@ struct ContentView: View {
             WidgetCenter.shared.reloadAllTimelines()
         }
     }
-    
+
     private func icon(for type: String) -> String {
         switch type {
         case "birthday": return "🎂"
@@ -131,7 +117,7 @@ struct ContentView: View {
         default: return "🗓️"
         }
     }
-    
+
     private func color(for days: Int?) -> Color {
         return .secondary
     }

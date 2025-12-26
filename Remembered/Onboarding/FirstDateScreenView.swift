@@ -7,7 +7,6 @@ struct FirstDateScreenView: View {
     var onComplete: () -> Void
 
     @State private var text = ""
-    @State private var hasAddedDate = false
     @State private var placeholder = ""
     @FocusState private var isFocused: Bool
     @AppStorage("lastUsedType") private var lastUsedType: String = "other"
@@ -58,39 +57,27 @@ struct FirstDateScreenView: View {
                 .background(Color(.secondarySystemBackground))
                 .cornerRadius(12)
 
-                // Live type preview
-                if !text.isEmpty {
-                    HStack {
-                        Text("Will save as: \(currentPredictedType().capitalized)")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                    }
+                // Live type preview (always reserve space to prevent layout shift)
+                HStack {
+                    Text(!text.isEmpty ? "Will save as: \(currentPredictedType().capitalized)" : " ")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Spacer()
                 }
-
-                // Save button (styled like a link)
-                if !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    Button(action: saveItem) {
-                        Text("Save")
-                            .font(.headline)
-                            .foregroundStyle(.blue)
-                    }
-                    .transition(.scale.combined(with: .opacity))
-                }
+                .frame(height: 16)
             }
             .padding(.horizontal, 32)
             .padding(.top, 16)
-            .animation(.easeInOut(duration: 0.2), value: text.isEmpty)
 
             Spacer()
 
-            // Finish button - disabled until date added
-            Button(action: onComplete) {
-                Text("Finish")
+            // Save button - disabled until text is entered
+            Button(action: saveAndComplete) {
+                Text("Save")
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
-            .disabled(!hasAddedDate)
+            .disabled(text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             .padding(.horizontal, 32)
             .padding(.bottom, 32)
         }
@@ -111,9 +98,12 @@ struct FirstDateScreenView: View {
         return lastUsedType != "other" ? lastUsedType : "other"
     }
 
-    private func saveItem() {
+    private func saveAndComplete() {
         let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedText.isEmpty else { return }
+
+        // Dismiss keyboard first
+        isFocused = false
 
         let result = DateParser.parse(trimmedText)
 
@@ -149,10 +139,8 @@ struct FirstDateScreenView: View {
         // Track analytics
         AnalyticsManager.track("first_date_added", properties: ["source": "onboarding"])
 
-        // Mark as added and clear input
-        hasAddedDate = true
-        text = ""
-        isFocused = false
+        // Complete onboarding
+        onComplete()
     }
 }
 

@@ -18,7 +18,7 @@ struct OnboardingPaywallScreenView: View {
                     .foregroundStyle(.blue)
                     .symbolRenderingMode(.hierarchical)
 
-                Text("Free forever")
+                Text("One-time unlock")
                     .font(.title2.bold())
 
                 VStack(spacing: 8) {
@@ -104,10 +104,11 @@ struct OnboardingPaywallScreenView: View {
                 .foregroundStyle(.secondary)
 
                 Button(action: onContinue) {
-                    Text("Continue")
+                    Text("Not now")
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.bordered)
+                .tint(.secondary)
             }
             .padding(.horizontal, 32)
             .padding(.bottom, 32)
