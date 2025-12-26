@@ -5,13 +5,15 @@ import WidgetKit
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \RememberedItem.date) private var items: [RememberedItem]
-    
+
     @State private var showingSettingsSheet = false
     @State private var showingPaywall = false
     @State private var preFillText: String = ""
     @FocusState private var inputFocused: Bool
+    @State private var keyboardHeight: CGFloat = 0
 
     var body: some View {
+        GeometryReader { geometry in
         NavigationStack {
             Group {
                 if items.isEmpty {
@@ -80,6 +82,23 @@ struct ContentView: View {
             .safeAreaInset(edge: .bottom) {
                 PersistentInputBar(preFillText: $preFillText, shouldFocus: inputFocused)
             }
+            .padding(.bottom, keyboardHeight)
+            .onAppear {
+                NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { notification in
+                    if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
+                        let safeAreaBottom = geometry.safeAreaInsets.bottom
+                        withAnimation(.easeOut(duration: 0.3)) {
+                            keyboardHeight = keyboardFrame.height - safeAreaBottom
+                        }
+                    }
+                }
+
+                NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { _ in
+                    withAnimation(.easeOut(duration: 0.3)) {
+                        keyboardHeight = 0
+                    }
+                }
+            }
             .sheet(isPresented: $showingSettingsSheet) {
                 SettingsView()
             }
@@ -93,6 +112,7 @@ struct ContentView: View {
                     showingPaywall = true
                 }
             }
+        }
         }
     }
 
