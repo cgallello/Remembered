@@ -8,6 +8,7 @@ struct SettingsView: View {
     @AppStorage("notificationHour") private var notificationHour: Int = 9
     @AppStorage("notificationMinute") private var notificationMinute: Int = 0
     @AppStorage("showDebugFeatures") private var showDebugFeatures: Bool = false
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = true
     
     @StateObject private var storeManager = StoreManager.shared
     
@@ -41,9 +42,15 @@ struct SettingsView: View {
                         }
                     ))
                     .tint(.purple)
-                    
+
                     Toggle("Debug: Show Reference Section", isOn: $showDebugFeatures)
                         .tint(.purple)
+
+                    Button("Reset Onboarding") {
+                        hasCompletedOnboarding = false
+                        dismiss()
+                    }
+                    .foregroundStyle(.purple)
                 } header: {
                     Text("Debug")
                 }
