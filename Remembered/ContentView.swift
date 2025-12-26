@@ -82,9 +82,14 @@ struct ContentView: View {
                 // Input bar - always at bottom of VStack
                 PersistentInputBar(preFillText: $preFillText, shouldFocus: triggerFocus)
             }
-            .navigationTitle("Dates")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Text("Remembered")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                }
+
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: { showingSettingsSheet = true }) {
                         Label("Settings", systemImage: "gear")
