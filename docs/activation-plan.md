@@ -155,28 +155,77 @@ enum HapticManager {
 ### 6. Widget Setup Prompt
 **Problem:** Widget is core value but users don't know it exists.
 
-**Solution:** Contextual prompt after activation milestone.
+**Solution:** Contextual prompt after activation milestone with video walkthrough.
 
 **Trigger:** User has added 3+ dates AND hasn't seen prompt before
 
-**UI:** Bottom sheet or inline card:
+**UI:** Bottom sheet or full-screen modal:
 ```
 ┌─────────────────────────────────────┐
 │ 📱 See dates on your Lock Screen   │
 │                                     │
-│ Add the Remembered widget to never  │
-│ miss an upcoming date.              │
+│ ┌─────────────────────────────────┐ │
+│ │                                 │ │
+│ │    [3:4 Screen Recording        │ │
+│ │     Video showing widget        │ │
+│ │     installation process]       │ │
+│ │                                 │ │
+│ │                                 │ │
+│ └─────────────────────────────────┘ │
 │                                     │
-│ [Show Me How]    [Maybe Later]      │
+│ Add the Remembered widget to see    │
+│ your dates at a glance.             │
+│                                     │
+│    [Go to Home Screen] ← Primary    │
+│       [Maybe Later]                 │
 └─────────────────────────────────────┘
 ```
 
-**"Show Me How" flow:**
-1. Show annotated screenshot of widget gallery
-2. Step-by-step: "Long press home → + button → Search 'Remembered'"
-3. Option to open Settings directly (can't deep-link to widget picker)
+**Video Content (3:4 aspect ratio):**
+- Screen recording showing: Long press home screen → Tap "+" → Search "Remembered" → Select widget size → Place widget
+- Duration: 10-15 seconds, looping
+- Silent or subtle background music
+
+**"Go to Home Screen" CTA Behavior:**
+- Dismisses the app to home screen (user can immediately follow along)
+- Video shows exactly what to do once they're there
+- Minimizes app to background using `UIApplication.shared.perform(#selector(NSXPowerAssertion.suspend))`
+
+**Alternative approach (iOS 18+):**
+```swift
+// Send to home screen
+if #available(iOS 18.0, *) {
+    await UIApplication.shared.requestSceneSessionDestruction(
+        UIApplication.shared.connectedScenes.first as! UIWindowScene,
+        options: nil
+    )
+} else {
+    // Fallback: Just dismiss the sheet - user navigates manually
+}
+```
+
+**Technical Implementation:**
+```swift
+// WidgetPromptView.swift
+Button("Go to Home Screen") {
+    // Mark as seen
+    UserDefaults.standard.set(true, forKey: "hasSeenWidgetPrompt")
+
+    // Minimize app to home screen
+    // Note: This uses private API - may need App Store review consideration
+    // Alternative: Just dismiss and rely on user navigating themselves
+    DispatchQueue.main.async {
+        UIApplication.shared.perform(#selector(NSXPowerAssertion.suspend))
+    }
+}
+```
 
 **Persist:** `@AppStorage("hasSeenWidgetPrompt")`
+
+**Asset Requirements:**
+- Record 3:4 screen recording of widget installation
+- Export as MP4 or use AVPlayer for playback
+- Consider hosting video in Assets.xcassets or bundle
 
 ---
 
@@ -202,41 +251,6 @@ enum HapticManager {
 
 ---
 
-### 8. First Week Engagement Hooks
-
-| Day | Trigger | Action |
-|-----|---------|--------|
-| Day 1 | After adding 1st date | Local notification: "Great start! Add another important date" |
-| Day 3 | If only 1-2 dates | Push: "Don't forget - add more dates so you never miss them" |
-| Day 5 | If 3+ dates, no widget | Push: "Pro tip: Add the widget to see dates at a glance" |
-| Day 7 | If not Pro | Push: "Unlock reminders so you never forget" |
-
-**Note:** Only for users who haven't disabled notifications
-
-**Implementation:**
-- Schedule local notifications when appropriate milestones are hit
-- Use `UNNotificationCenter` with time-based triggers
-- Track notification state with `@AppStorage` flags
-
----
-
-### 9. Streak/Momentum Indicators
-**Problem:** No sense of progress or investment.
-
-**Solution (lightweight):**
-
-- Show count in nav bar or settings: "12 dates remembered"
-- Optional: "You've never missed a date since joining" badge after 1 year
-
----
-
-### 10. Share/Invite Flow (Future)
-Not activation directly, but drives organic growth:
-- "Share your upcoming dates" → generates shareable list/image
-- "Invite someone to remember your birthday" → referral
-
----
-
 ## Analytics Implementation
 
 ### Core Events to Track
@@ -257,7 +271,7 @@ Not activation directly, but drives organic growth:
 
 **Feature Discovery:**
 - `widget_prompt_shown`
-- `widget_prompt_action` (action: "show_how" | "maybe_later")
+- `widget_prompt_action` (action: "go_to_home_screen" | "maybe_later")
 - `settings_opened`
 - `paywall_shown` (source: string)
 
@@ -321,10 +335,8 @@ AnalyticsManager.track("date_added", properties: [
 6. **Widget setup prompt** + track interactions
 7. **Enhanced visual save confirmation**
 
-### Phase 3: Engagement & Retention
-8. **First-week notification sequence** + track delivery
-9. **Parsing preview enhancements**
-10. **Progress indicators**
+### Phase 3: Polish & Delight
+8. **Parsing preview enhancements** (real-time parsing display, rotating placeholders)
 
 ---
 
@@ -335,7 +347,7 @@ AnalyticsManager.track("date_added", properties: [
 | % users completing onboarding | N/A | 100% | `onboarding_completed` / `onboarding_started` |
 | % users adding 1+ date in first session | ~40% | 80% | `first_date_added` (day 0) / `app_opened` (first_launch) |
 | % users adding 3+ dates in first week | ~20% | 50% | Count users with 3+ `date_added` events in first 7 days |
-| % users with widget installed | Unknown | 40% | Survey or proxy metric: `widget_prompt_action: "show_how"` |
+| % users with widget installed | Unknown | 40% | Survey or proxy metric: `widget_prompt_action: "go_to_home_screen"` |
 | Day 7 retention | Unknown | 35% | % of users opening app on day 7 |
 | Conversion to Pro | Unknown | 15% | `pro_purchase_completed` / total users (30-day cohort) |
 
@@ -358,8 +370,9 @@ AnalyticsManager.track("date_added", properties: [
 2. **Example phrases:** How many? Randomized or fixed order?
 
 ### Widget Prompt
-1. **Screenshot:** Generic or show actual widget preview?
+1. **Video recording:** Record on device with actual app data or use demo/placeholder dates?
 2. **Timing:** Immediately after 3rd date or wait until next session?
+3. **Home screen transition:** Use private API to minimize app, or just dismiss prompt and instruct user to go home manually?
 
 ---
 
@@ -367,7 +380,8 @@ AnalyticsManager.track("date_added", properties: [
 
 1. [ ] Review and approve this plan
 2. [ ] Answer design questions (create mockups if needed)
-3. [ ] Set up analytics infrastructure (TelemetryDeck/PostHog)
-4. [ ] Implement Phase 1 (analytics + empty state + persistent input + haptics)
-5. [ ] Monitor activation metrics for 1 week
-6. [ ] Iterate based on data before moving to Phase 2
+3. [ ] Record 3:4 widget installation screen recording video (10-15s)
+4. [ ] Set up analytics infrastructure (TelemetryDeck/PostHog)
+5. [ ] Implement Phase 1 (analytics + empty state + persistent input + haptics)
+6. [ ] Monitor activation metrics for 1 week
+7. [ ] Iterate based on data before moving to Phase 2
