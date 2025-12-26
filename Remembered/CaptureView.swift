@@ -5,12 +5,12 @@ import WidgetKit
 struct CaptureView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    
-    @State private var text: String = ""
+
+    @State private var text: String
     @State private var placeholder: String = ""
     @FocusState private var isFocused: Bool
     @AppStorage("lastUsedType") private var lastUsedType: String = "other"
-    
+
     private let placeholderExamples = [
         "Sam's birthday on Jan 12",
         "Our wedding anniversary October 14",
@@ -19,7 +19,11 @@ struct CaptureView: View {
         "Grandma's birthday 8/22",
         "Wedding anniversary 10/14"
     ]
-    
+
+    init(initialText: String = "") {
+        _text = State(initialValue: initialText)
+    }
+
     var body: some View {
         NavigationStack {
             VStack {

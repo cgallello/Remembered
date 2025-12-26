@@ -9,11 +9,25 @@ struct ContentView: View {
     @State private var showingCaptureSheet = false
     @State private var showingSettingsSheet = false
     @State private var showingPaywall = false
+    @State private var preFillText: String = ""
 
     var body: some View {
         NavigationStack {
-            List {
-                ForEach(items) { item in
+            Group {
+                if items.isEmpty {
+                    EmptyStateView(
+                        onExampleTapped: { example in
+                            preFillText = example
+                            showingCaptureSheet = true
+                        },
+                        onAddTapped: {
+                            preFillText = ""
+                            showingCaptureSheet = true
+                        }
+                    )
+                } else {
+                    List {
+                    ForEach(items) { item in
                     NavigationLink(destination: DetailView(item: item)) {
                         HStack(spacing: 12) {
                             Text(icon(for: item.type))
@@ -50,8 +64,10 @@ struct ContentView: View {
                         }
                         .padding(.vertical, 4)
                     }
+                    }
+                    .onDelete(perform: deleteItems)
+                    }
                 }
-                .onDelete(perform: deleteItems)
             }
             .navigationTitle("Dates")
             .toolbar {
@@ -68,9 +84,12 @@ struct ContentView: View {
                 }
             }
             .sheet(isPresented: $showingCaptureSheet) {
-                CaptureView()
+                CaptureView(initialText: preFillText)
                     .presentationDetents([.fraction(0.35), .medium])
                     .presentationDragIndicator(.visible)
+                    .onDisappear {
+                        preFillText = ""
+                    }
             }
             .sheet(isPresented: $showingSettingsSheet) {
                 SettingsView()
