@@ -83,6 +83,7 @@ struct ContentView: View {
                 PersistentInputBar(preFillText: $preFillText, shouldFocus: triggerFocus)
             }
             .navigationTitle("Dates")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: { showingSettingsSheet = true }) {
