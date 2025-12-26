@@ -324,19 +324,25 @@ AnalyticsManager.track("date_added", properties: [
 
 ## Implementation Sequence
 
-### Phase 1: Core Activation + Analytics Foundation
-1. **Set up analytics** (TelemetryDeck or PostHog)
-2. **Empty state with CTA** + track events
-3. **Persistent capture field** + track events
-4. **Basic haptic feedback** (save success)
+### Phase 1: Core Activation
+1. **Empty state with CTA**
+2. **Persistent capture field**
+3. **Basic haptic feedback** (save success)
+
+**Goal:** Get users adding dates with minimal friction
 
 ### Phase 2: Onboarding & Guidance
-5. **3-screen onboarding flow** (no skip) + track funnel
-6. **Widget setup prompt** + track interactions
-7. **Enhanced visual save confirmation**
+4. **3-screen onboarding flow** (no skip)
+5. **Enhanced visual save confirmation**
+6. **Widget setup prompt with video**
 
-### Phase 3: Polish & Delight
-8. **Parsing preview enhancements** (real-time parsing display, rotating placeholders)
+**Goal:** Educate users on value prop + drive widget adoption
+
+### Phase 3: Polish & Analytics
+7. **Parsing preview enhancements** (real-time parsing display, rotating placeholders)
+8. **Analytics infrastructure setup** (TelemetryDeck or PostHog)
+
+**Goal:** Make natural language parsing discoverable + add instrumentation
 
 ---
 
@@ -380,8 +386,8 @@ AnalyticsManager.track("date_added", properties: [
 
 1. [ ] Review and approve this plan
 2. [ ] Answer design questions (create mockups if needed)
-3. [ ] Record 3:4 widget installation screen recording video (10-15s)
-4. [ ] Set up analytics infrastructure (TelemetryDeck/PostHog)
-5. [ ] Implement Phase 1 (analytics + empty state + persistent input + haptics)
-6. [ ] Monitor activation metrics for 1 week
-7. [ ] Iterate based on data before moving to Phase 2
+3. [ ] Implement Phase 1 (empty state + persistent input + haptics)
+4. [ ] Implement Phase 2 (onboarding + confirmations + widget prompt)
+5. [ ] Record 3:4 widget installation screen recording video (10-15s) for widget prompt
+6. [ ] Implement Phase 3 (parsing preview + analytics infrastructure)
+7. [ ] Monitor activation metrics and iterate
