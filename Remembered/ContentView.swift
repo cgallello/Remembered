@@ -15,7 +15,7 @@ struct ContentView: View {
     var body: some View {
         GeometryReader { geometry in
         NavigationStack {
-            Group {
+            VStack(spacing: 0) {
                 if items.isEmpty {
                     EmptyStateView(
                         onExampleTapped: { example in
@@ -27,7 +27,6 @@ struct ContentView: View {
                             inputFocused = true
                         }
                     )
-                    .padding(.bottom, keyboardHeight)
                 } else {
                     List {
                     ForEach(items) { item in
@@ -71,7 +70,11 @@ struct ContentView: View {
                     .onDelete(perform: deleteItems)
                     }
                 }
+
+                PersistentInputBar(preFillText: $preFillText, shouldFocus: inputFocused)
             }
+            .padding(.bottom, keyboardHeight)
+            .ignoresSafeArea(.keyboard)
             .navigationTitle("Dates")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -79,10 +82,6 @@ struct ContentView: View {
                         Label("Settings", systemImage: "gear")
                     }
                 }
-            }
-            .safeAreaInset(edge: .bottom) {
-                PersistentInputBar(preFillText: $preFillText, shouldFocus: inputFocused)
-                    .offset(y: -keyboardHeight)
             }
             .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
                 if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
