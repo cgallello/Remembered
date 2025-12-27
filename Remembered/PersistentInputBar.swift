@@ -95,6 +95,9 @@ struct PersistentInputBar: View {
         modelContext.insert(newItem)
         try? modelContext.save()
 
+        // Haptic feedback for successful save
+        HapticManager.success()
+
         // Auto-schedule notifications if Pro
         if StoreManager.shared.isPro {
             Task {

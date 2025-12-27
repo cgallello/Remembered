@@ -12,6 +12,7 @@ struct SettingsView: View {
 
     @StateObject private var storeManager = StoreManager.shared
     @State private var showingOnboarding = false
+    @State private var showBirthdayImport = false
     
     var body: some View {
         NavigationStack {
@@ -28,13 +29,23 @@ struct SettingsView: View {
                             let components = Calendar.current.dateComponents([.hour, .minute], from: newDate)
                             notificationHour = components.hour ?? 9
                             notificationMinute = components.minute ?? 0
-                            
+
                             // Reschedule all when time changes
                             NotificationManager.shared.rescheduleAllNotifications(items: items)
                         }
                     ), displayedComponents: .hourAndMinute)
                 }
-                
+
+                Section {
+                    Button("Sync birthdays from contacts") {
+                        showBirthdayImport = true
+                    }
+                } header: {
+                    Text("Contacts")
+                } footer: {
+                    Text("Import new birthdays or update existing ones from your contacts.")
+                }
+
                 Section {
                     Toggle("Debug: Pro Status", isOn: Binding(
                         get: { storeManager.isPro },
@@ -49,6 +60,11 @@ struct SettingsView: View {
 
                     Button("Open onboarding") {
                         showingOnboarding = true
+                    }
+                    .foregroundStyle(.purple)
+
+                    Button("Reset 24hr bday sync limit") {
+                        UserDefaults.standard.removeObject(forKey: "lastBirthdaySyncDate")
                     }
                     .foregroundStyle(.purple)
                 } header: {
@@ -68,6 +84,22 @@ struct SettingsView: View {
         }
         .fullScreenCover(isPresented: $showingOnboarding) {
             OnboardingContainerView()
+        }
+        .sheet(isPresented: $showBirthdayImport) {
+            NavigationStack {
+                BirthdayImportView(onContinue: {
+                    showBirthdayImport = false
+                })
+                .navigationTitle("Sync Birthdays")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Done") {
+                            showBirthdayImport = false
+                        }
+                    }
+                }
+            }
         }
     }
 }

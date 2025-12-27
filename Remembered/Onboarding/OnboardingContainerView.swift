@@ -14,7 +14,7 @@ struct OnboardingContainerView: View {
             VStack(spacing: 0) {
                 // Custom page indicator
                 HStack(spacing: 8) {
-                    ForEach(0..<4) { index in
+                    ForEach(0..<5) { index in
                         Circle()
                             .fill(index == currentScreen ? Color.blue : Color.secondary.opacity(0.3))
                             .frame(width: 8, height: 8)
@@ -45,14 +45,22 @@ struct OnboardingContainerView: View {
                         withAnimation {
                             currentScreen = 3
                         }
-                        AnalyticsManager.track("onboarding_screen_viewed", properties: ["screen": "paywall"])
+                        AnalyticsManager.track("onboarding_screen_viewed", properties: ["screen": "birthday_import"])
                     })
                     .tag(2)
+
+                    BirthdayImportView(onContinue: {
+                        withAnimation {
+                            currentScreen = 4
+                        }
+                        AnalyticsManager.track("onboarding_screen_viewed", properties: ["screen": "paywall"])
+                    })
+                    .tag(3)
 
                     OnboardingPaywallScreenView(onContinue: {
                         completeOnboarding()
                     })
-                    .tag(3)
+                    .tag(4)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(.easeInOut(duration: 0.3), value: currentScreen)

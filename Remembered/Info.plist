@@ -15,5 +15,7 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSContactsUsageDescription</key>
+	<string>Remembered uses your contacts to suggest people while you're typing and to import birthdays. Contacts are used only on this device.</string>
 </dict>
 </plist>

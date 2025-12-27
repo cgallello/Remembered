@@ -79,6 +79,14 @@ struct FirstDateScreenView: View {
             .buttonStyle(.borderedProminent)
             .disabled(text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             .padding(.horizontal, 32)
+
+            // Skip button for testing
+            Button(action: onComplete) {
+                Text("Skip")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
+            .padding(.horizontal, 32)
             .padding(.bottom, 32)
         }
         .onAppear {

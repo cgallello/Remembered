@@ -26,8 +26,12 @@ final class RememberedItem {
     
     var isNotificationEnabled: Bool
     var notificationIntervals: [String] // "oneMonth", "twoWeeks", "oneWeek", "threeDays", "oneDay", "dayOf"
-    
-    init(rawInput: String, title: String? = nil, date: Date? = nil, type: String = "other", recurrence: String = "none", notes: String = "", needsReview: Bool = false, isNotificationEnabled: Bool = false, notificationIntervals: [String] = ["oneWeek", "dayOf"]) {
+
+    // Contact linkage (optional)
+    var contactId: String?              // CNContact identifier
+    var contactDisplayName: String?     // Snapshot of contact name at time of linking
+
+    init(rawInput: String, title: String? = nil, date: Date? = nil, type: String = "other", recurrence: String = "none", notes: String = "", needsReview: Bool = false, isNotificationEnabled: Bool = false, notificationIntervals: [String] = ["oneWeek", "dayOf"], contactId: String? = nil, contactDisplayName: String? = nil) {
         self.id = UUID()
         self.rawInput = rawInput
         self.title = title ?? rawInput
@@ -38,6 +42,8 @@ final class RememberedItem {
         self.needsReview = needsReview
         self.isNotificationEnabled = isNotificationEnabled
         self.notificationIntervals = notificationIntervals
+        self.contactId = contactId
+        self.contactDisplayName = contactDisplayName
         self.createdAt = Date()
         self.updatedAt = Date()
     }

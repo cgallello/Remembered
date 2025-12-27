@@ -47,6 +47,9 @@ struct DetailView: View {
                 .onChange(of: item.type) {
                     try? item.modelContext?.save()
                     WidgetCenter.shared.reloadAllTimelines()
+
+                    // Haptic feedback for type selection
+                    HapticManager.selection()
                 }
             }
             

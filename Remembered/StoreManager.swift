@@ -75,6 +75,10 @@ class StoreManager: ObservableObject {
         switch result {
         case .success(let verification):
             await handle(transactionVerification: verification)
+
+            // Haptic feedback for successful purchase
+            HapticManager.success()
+
             return true
         case .userCancelled, .pending:
             return false

@@ -82,14 +82,9 @@ struct ContentView: View {
                 // Input bar - always at bottom of VStack
                 PersistentInputBar(preFillText: $preFillText, shouldFocus: triggerFocus)
             }
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("Remembered")
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Text("Remembered")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                }
-
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: { showingSettingsSheet = true }) {
                         Label("Settings", systemImage: "gear")
@@ -116,6 +111,13 @@ struct ContentView: View {
                     showingPaywall = true
                 }
             }
+            .onAppear {
+                // Background sync birthdays from contacts (throttled to once per 24 hours)
+                let container = modelContext.container
+                Task.detached(priority: .background) {
+                    await ContactSyncService.shared.syncBirthdaysIfNeeded(modelContainer: container)
+                }
+            }
         }
     }
 
@@ -125,6 +127,10 @@ struct ContentView: View {
                 modelContext.delete(items[index])
             }
             try? modelContext.save()
+
+            // Haptic feedback for delete action
+            HapticManager.warning()
+
             WidgetCenter.shared.reloadAllTimelines()
         }
     }
