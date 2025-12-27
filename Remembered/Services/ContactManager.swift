@@ -138,6 +138,48 @@ class ContactManager {
         cacheTimestamp = nil
     }
 
+    // MARK: - Contact Birthday Update
+
+    func updateContactBirthday(contactId: String, birthday: Date) -> Result<Void, Error> {
+        guard permissionGranted else {
+            return .failure(NSError(domain: "ContactManager", code: 1, userInfo: [NSLocalizedDescriptionKey: "No contacts permission"]))
+        }
+
+        // Fetch the contact
+        guard let contact = getContact(id: contactId) else {
+            return .failure(NSError(domain: "ContactManager", code: 2, userInfo: [NSLocalizedDescriptionKey: "Contact not found"]))
+        }
+
+        // Create mutable copy
+        let mutableContact = contact.mutableCopy() as! CNMutableContact
+
+        // Convert Date to DateComponents (no year for birthdays)
+        let calendar = Calendar.current
+        var components = calendar.dateComponents([.month, .day], from: birthday)
+        components.calendar = calendar
+
+        // Set birthday
+        mutableContact.birthday = components
+
+        // Save the contact
+        let saveRequest = CNSaveRequest()
+        saveRequest.update(mutableContact)
+
+        do {
+            try contactStore.execute(saveRequest)
+            // Clear cache to refresh
+            clearCache()
+            return .success(())
+        } catch {
+            return .failure(error)
+        }
+    }
+
+    func getContactBirthday(contactId: String) -> DateComponents? {
+        guard let contact = getContact(id: contactId) else { return nil }
+        return contact.birthday
+    }
+
     // MARK: - Private Helpers
 
     private func getAllContacts() -> [CNContact] {

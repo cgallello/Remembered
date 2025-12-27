@@ -20,6 +20,7 @@ struct DetailView: View {
                         .onChange(of: item.date) {
                             try? item.modelContext?.save()
                             WidgetCenter.shared.reloadAllTimelines()
+                            updateContactBirthdayIfNeeded()
                         }
                 } else {
                     Button("Add Date") {
@@ -30,6 +31,7 @@ struct DetailView: View {
                         } else {
                             item.date = Date()
                         }
+                        updateContactBirthdayIfNeeded()
                     }
                 }
                 
@@ -47,6 +49,7 @@ struct DetailView: View {
                 .onChange(of: item.type) {
                     try? item.modelContext?.save()
                     WidgetCenter.shared.reloadAllTimelines()
+                    updateContactBirthdayIfNeeded()
 
                     // Haptic feedback for type selection
                     HapticManager.selection()
@@ -130,6 +133,19 @@ struct DetailView: View {
             PaywallView()
         }
     }
-    
+
     @State private var showingPaywall = false
+
+    private func updateContactBirthdayIfNeeded() {
+        // Only update if it's a birthday with a contact linked and we have a date
+        guard item.type == "birthday",
+              let contactId = item.contactId,
+              let newBirthday = item.date,
+              ContactManager.shared.permissionGranted else {
+            return
+        }
+
+        // Update the contact birthday (no confirmation dialog - user is intentionally editing)
+        _ = ContactManager.shared.updateContactBirthday(contactId: contactId, birthday: newBirthday)
+    }
 }

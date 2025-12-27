@@ -83,7 +83,7 @@ struct ContentView: View {
                 PersistentInputBar(preFillText: $preFillText, shouldFocus: triggerFocus)
             }
             .navigationTitle("Remembered")
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: { showingSettingsSheet = true }) {
